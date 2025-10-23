@@ -19,15 +19,16 @@ import org.json.simple.JSONObject;
  * @author Administrator
  */
 public class DisbAuthorization implements iSystemMonitor {
+
     private String psMonitorName = "Pending Authorization";
     private GRiderCAS poDriver;
     private String[] pasBranchCD;
     private String[] pasCompnyID;
     private String[] pasIndstCdx;
     private String[] pasCategrCd;
-    
+
     JSONArray poJAData = null;
-    
+
     @Override
     public void setDriver(GRiderCAS driver) {
         poDriver = driver;
@@ -62,7 +63,7 @@ public class DisbAuthorization implements iSystemMonitor {
     public JSONObject processMonitor() {
         String lsSQL;
         JSONObject oRes = new JSONObject();
-        
+
         lsSQL = "SELECT" + 
                        "  a.sTransNox" + 
                        ", a.dTransact" + 
@@ -71,69 +72,76 @@ public class DisbAuthorization implements iSystemMonitor {
                        ", d.sCompnyNm" + 
                        ", a.sIndstCdx" + 
                        ", a.cTranStat" +
+                       ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme" +
+                       ", CONCAT(b.`sBranchNm`, ' - #',a.`sVouchrNo`) sToolTipx" +
                " FROM Disbursement_Master a" +
                     " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD" +
                     " LEFT JOIN Payee c ON a.sPayeeIDx = c.sPayeeIDx" +
-                    " LEFT JOIN sCompnyID d ON a.sCompnyID = d.sCompnyID" +
-               " WHERE a.cTranStat IN ('5')" ;
-        
+                    " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID" +
+               " WHERE a.cTranStat IN ('2')" ;
         //she ->Status to be change nalang after finalization
         //status: 3 = cancelled, 4 = void
-
         String lsFilterAll = "";
         String lsFilter;
-        
+
         //set filter by industry
         lsFilter = "";
-        for (String lsValue : pasIndstCdx) {
-            lsFilter += ", " + SQLUtil.toSQL(lsValue);
+        if (pasIndstCdx != null) {
+            for (String lsValue : pasIndstCdx) {
+                lsFilter += ", " + SQLUtil.toSQL(lsValue);
+            }
         }
-        if(!lsFilter.isEmpty()){
+        if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sIndstCdx IN(" + lsFilter.substring(2) + ")";
         }
-
         //set filter by category
         lsFilter = "";
-        for (String lsValue : pasCategrCd) {
-            lsFilter += ", " + SQLUtil.toSQL(lsValue);
+        if (pasCategrCd != null) {
+            for (String lsValue : pasCategrCd) {
+                lsFilter += ", " + SQLUtil.toSQL(lsValue);
+            }
         }
-        if(!lsFilter.isEmpty()){
+        if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sCategrCd IN(" + lsFilter.substring(2) + ")";
         }
 
         //set filter by company
         lsFilter = "";
-        for (String lsValue : pasCompnyID) {
-            lsFilter += ", " + SQLUtil.toSQL(lsValue);
+        if (pasCompnyID != null) {
+            for (String lsValue : pasCompnyID) {
+                lsFilter += ", " + SQLUtil.toSQL(lsValue);
+            }
         }
-        if(!lsFilter.isEmpty()){
+        if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sCompnyID IN(" + lsFilter.substring(2) + ")";
         }
-        
+
         //set filter by branch
         lsFilter = "";
-        for (String lsValue : pasBranchCD) {
-            lsFilter += ", " + SQLUtil.toSQL(lsValue);
+        if (pasBranchCD != null) {
+            for (String lsValue : pasBranchCD) {
+                lsFilter += ", " + SQLUtil.toSQL(lsValue);
+            }
         }
-        if(!lsFilter.isEmpty()){
+        if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sBranchCD IN(" + lsFilter.substring(2) + ")";
         }
 
-        if(!lsFilterAll.isEmpty()){
+        if (!lsFilterAll.isEmpty()) {
             lsSQL += lsFilterAll;
         }
-        
+
         try {
+            System.out.println("Monitoring Query is = " + lsSQL);
             ResultSet loRS = poDriver.executeQuery(lsSQL);
-            
             poJAData = MiscUtil.RS2JSON(loRS);
-            
+
         } catch (SQLException ex) {
             oRes.put("result", "Failed");
             oRes.put("message", MiscUtil.getException(ex));
             return oRes;
         }
-        
+
         oRes.put("result", "Success");
         return oRes;
     }
@@ -142,5 +150,5 @@ public class DisbAuthorization implements iSystemMonitor {
     public JSONArray getRecords() {
         return poJAData;
     }
-    
+
 }
