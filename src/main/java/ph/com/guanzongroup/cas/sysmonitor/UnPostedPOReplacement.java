@@ -71,11 +71,13 @@ public class UnPostedPOReplacement implements iSystemMonitor {
                        ", d.sCompnyNm" + 
                        ", a.sIndstCdx" + 
                        ", a.sCategrCd" + 
-                       " a.cProcessd" +
+                       ", a.cProcessd" +
+                       ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme" +
+                       ", CONCAT(b.`sBranchNm`, ' - #',a.`sReferNox`) sToolTipx" +
                " FROM PO_Return_Master a" +
                     " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD" +
                     " LEFT JOIN Client_Master c ON a.sSupplier = c.sClientID" +
-                    " LEFT JOIN sCompnyID d ON a.sCompnyID = d.sCompnyID" +
+                    " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID" +
                " WHERE a.cTranStat IN ('1')" +
                " AND a.cProcessd IN ('0', '1')";
 
@@ -84,47 +86,55 @@ public class UnPostedPOReplacement implements iSystemMonitor {
         
         //set filter by industry
         lsFilter = "";
-        for (String lsValue : pasIndstCdx) {
-            lsFilter += ", " + SQLUtil.toSQL(lsValue);
+        if (pasIndstCdx != null) {
+            for (String lsValue : pasIndstCdx) {
+                lsFilter += ", " + SQLUtil.toSQL(lsValue);
+            }
         }
-        if(!lsFilter.isEmpty()){
+        if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sIndstCdx IN(" + lsFilter.substring(2) + ")";
         }
-
         //set filter by category
         lsFilter = "";
-        for (String lsValue : pasCategrCd) {
-            lsFilter += ", " + SQLUtil.toSQL(lsValue);
+        if (pasCategrCd != null) {
+            for (String lsValue : pasCategrCd) {
+                lsFilter += ", " + SQLUtil.toSQL(lsValue);
+            }
         }
-        if(!lsFilter.isEmpty()){
+        if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sCategrCd IN(" + lsFilter.substring(2) + ")";
         }
 
         //set filter by company
         lsFilter = "";
-        for (String lsValue : pasCompnyID) {
-            lsFilter += ", " + SQLUtil.toSQL(lsValue);
+        if (pasCompnyID != null) {
+            for (String lsValue : pasCompnyID) {
+                lsFilter += ", " + SQLUtil.toSQL(lsValue);
+            }
         }
-        if(!lsFilter.isEmpty()){
+        if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sCompnyID IN(" + lsFilter.substring(2) + ")";
         }
-        
+
         //set filter by branch
         lsFilter = "";
-        for (String lsValue : pasBranchCD) {
-            lsFilter += ", " + SQLUtil.toSQL(lsValue);
+        if (pasBranchCD != null) {
+            for (String lsValue : pasBranchCD) {
+                lsFilter += ", " + SQLUtil.toSQL(lsValue);
+            }
         }
-        if(!lsFilter.isEmpty()){
+        if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sBranchCD IN(" + lsFilter.substring(2) + ")";
         }
 
-        if(!lsFilterAll.isEmpty()){
+        if (!lsFilterAll.isEmpty()) {
             lsSQL += lsFilterAll;
         }
-        
+
         try {
+            System.out.println("Monitoring Query is = " + lsSQL);
             ResultSet loRS = poDriver.executeQuery(lsSQL);
-            
+
             poJAData = MiscUtil.RS2JSON(loRS);
             
         } catch (SQLException ex) {
