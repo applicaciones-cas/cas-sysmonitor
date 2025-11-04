@@ -136,7 +136,7 @@ public class UndeliveredPurchaseOrder implements iSystemMonitor {
         }
 
         try {
-            System.out.println("Monitoring Query is = " + lsSQL);
+//            System.out.println("Monitoring Query is = " + lsSQL);
             ResultSet loRS = poDriver.executeQuery(lsSQL);
 
             poJAData = MiscUtil.RS2JSON(loRS);
