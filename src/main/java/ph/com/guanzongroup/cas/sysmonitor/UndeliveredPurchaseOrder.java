@@ -64,26 +64,28 @@ public class UndeliveredPurchaseOrder implements iSystemMonitor {
         String lsSQL;
         JSONObject oRes = new JSONObject();
 
-        lsSQL = "SELECT" + 
-                       "  a.sTransNox" + 
-                       ", a.dTransact" + 
-                       ", c.sCompnyNm" + 
-                       ", b.sBranchNm" + 
-                       ", d.sCompnyNm" + 
-                       ", a.sIndstCdx" + 
-                       ", a.sCategrCd" + 
-                       ", a.cPreOwned" +  
-                       ", a.cProcessd" +
-                       ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme" +
-                       ", CONCAT(b.`sBranchNm`, ' - #',a.`sReferNox`) sToolTipx" +
-               " FROM PO_Master a" +
-                    " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD" +
-                    " LEFT JOIN Client_Master c ON a.sSupplier = c.sClientID" +
-                    " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID" +
-               " WHERE a.cTranStat IN ('2')" +
-                 " AND a.cProcessd IN ('0', '1')";
+        lsSQL = "SELECT"
+                + "  a.sTransNox"
+                + ", a.dTransact"
+                + ", c.sCompnyNm"
+                + ", b.sBranchNm"
+                + ", d.sCompnyNm"
+                + ", a.sIndstCdx"
+                + ", a.sCategrCd"
+                + ", a.cPreOwned"
+                + ", a.cProcessd"
+                + ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme"
+                + ", CONCAT(b.`sBranchNm`, ' - #',a.`sReferNox`) sToolTipx"
+                + " FROM PO_Master a"
+                + " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD"
+                + " LEFT JOIN Client_Master c ON a.sSupplier = c.sClientID"
+                + " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID"
+                + " WHERE a.cTranStat IN ('5')"
+                + " AND a.cProcessd IN ('0', '1') "
+                + " AND sTransNox NOT IN(SELECT sOrderNox FROM PO_Receiving_Master a, "
+                + "`PO_Receiving_Detail` b"
+                + " WHERE a.`sTransNox` = b.`sTransNox` AND b.sOrderNox != '' AND cTranStat = '1')";
 
-      
         String lsFilterAll = "";
         String lsFilter;
 
