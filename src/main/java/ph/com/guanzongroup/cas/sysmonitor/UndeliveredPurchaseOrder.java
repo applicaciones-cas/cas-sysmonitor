@@ -86,7 +86,7 @@ public class UndeliveredPurchaseOrder implements iSystemMonitor {
                 + " AND a.cProcessd IN ('0', '1') "
                 + " AND sTransNox NOT IN(SELECT sOrderNox FROM PO_Receiving_Master a, "
                 + "`PO_Receiving_Detail` b"
-                + " WHERE a.`sTransNox` = b.`sTransNox` AND b.sOrderNox != '' AND cTranStat = '1')"
+                + " WHERE a.`sTransNox` = b.`sTransNox` AND b.sOrderNox != '' AND cTranStat IN ('1','2','7','9','8'))"
                 + " AND NOT EXISTS ( SELECT 1 FROM PO_Detail pd"
                 + "                  JOIN PO_Cancellation_Detail cd ON cd.sStockIDx = pd.sStockIDx"
                 + "                  JOIN PO_Cancellation_Master cm ON cm.`sTransNox` = cd.`sTransNox`"
