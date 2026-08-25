@@ -90,7 +90,13 @@ public class DisPendingBills implements iSystemMonitor {
                 + " , h.sBranchNm AS xBranchNm "
                 + " , f.sCompnyNm AS xEmployNm "
                 + " , SUM(b.nAmountxx) AS xAmountxx " 
-                + " , GROUP_CONCAT(a.sTransNox) AS sTransNox"
+//                + " , GROUP_CONCAT(a.sTransNox) AS sTransNox" //Replaced by json object below to prevent large value of string - Arsiela 08-25-2026 1:15 PM
+                + " ,  JSON_OBJECT(" 
+                + "        'sCompnyID', b.sCompnyID," 
+                + "        'sPayeeIDx', b.sPayeeIDx," 
+                + "        'nBillDayx', b.nBillDayx," 
+                + "        'cAccntble', b.cAccntble " 
+                + "    ) AS sTransNox "
 //                + " , CONCAT(h.sBranchNm, ' : ',d.sPayeeNme, '-' , e.sDescript ,' - '," // Removed branch in display since list is not grouped per branch - Arsiela 05-28-2026 01:38 PM
                 + " , CONCAT(d.sPayeeNme, ' : ' , e.sDescript ,' - ',"
                 + "     ELT(a.nBillMnth, 'January','February','March','April','May','June','July','August','September','October','November','December') "
