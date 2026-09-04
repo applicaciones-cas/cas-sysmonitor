@@ -98,7 +98,7 @@ public class DisPendingBills implements iSystemMonitor {
                 + "        'cAccntble', b.cAccntble " 
                 + "    ) AS sTransNox "
 //                + " , CONCAT(h.sBranchNm, ' : ',d.sPayeeNme, '-' , e.sDescript ,' - '," // Removed branch in display since list is not grouped per branch - Arsiela 05-28-2026 01:38 PM
-                + " , CONCAT(d.sPayeeNme, ' : ' , e.sDescript ,' - ',"
+                + " , CONCAT(k.sDivsnDsc, ' : ' , d.sPayeeNme, ' : ' , e.sDescript ,' - ',"
                 + "     ELT(a.nBillMnth, 'January','February','March','April','May','June','July','August','September','October','November','December') "
                 + " , '- ', b.nDueDayxx) sDisplayNme" 
                 + " , 'Payment Requests - New' sToolTipx" 
@@ -110,10 +110,12 @@ public class DisPendingBills implements iSystemMonitor {
                 + " LEFT JOIN Client_Master f ON f.sClientID = b.sEmployID "
                 + " LEFT JOIN Industry g ON g.sIndstCdx = c.sIndstCdx      "
                 + " LEFT JOIN Branch h ON h.sBranchCd = b.sBranchCd       " 
-                + " LEFT JOIN Company i ON i.sCompnyID = b.sCompnyID       " ;
+                + " LEFT JOIN Company i ON i.sCompnyID = b.sCompnyID       "
+                + " LEFT JOIN Branch_Others j ON h.sBranchCd = j.sBranchCd  "
+                + " LEFT JOIN Division k ON j.cDivision = k.sDivsnCde " ;
          //she ->Status to be change nalang after finalization
         
-        lsSQL = MiscUtil.addCondition(lsSQL, " (a.sBatchNox IS NULL OR TRIM(a.sBatchNox) = '') AND b.cExcluded = " + SQLUtil.toSQL(Logical.NO));
+        lsSQL = MiscUtil.addCondition(lsSQL, " (a.sBatchNox IS NULL OR TRIM(a.sBatchNox) = '') AND b.cExcluded = " + SQLUtil.toSQL(Logical.NO) ); //Division 1 is for GCO - Arsiela 05-28-2026 01:38 PM
         if(poDriver.isMainOffice()){
             lsSQL = lsSQL + " AND b.cAccntble != " + SQLUtil.toSQL(Logical.YES); //Except Accountable is equal to Branch : 1
         } else {
@@ -151,10 +153,10 @@ public class DisPendingBills implements iSystemMonitor {
         }
         
 //        lsSQL = lsSQL + " GROUP BY b.sPayeeIDx, b.sBranchCd, c.sPrtclrID, a.nBillMnth, b.nDueDayxx ";
-        lsSQL = lsSQL + " GROUP BY b.sCompnyID, b.sPayeeIDx, b.cAccntble, b.nBillDayx "; //Changed group by according to ma'am she - Arsiela 05-28-206
-        
+        lsSQL = lsSQL + " GROUP BY k.sDivsnDsc,b.sCompnyID, b.sPayeeIDx, b.cAccntble, b.nBillDayx "; //Changed group by according to ma'am she - Arsiela 05-28-206
+        lsSQL = lsSQL + " ORDER  BY k.sDivsnDsc";
         try {
-//            System.out.println("Monitoring Query is = " + lsSQL);
+            System.out.println("DISPENDING BILLS = " + lsSQL);
             ResultSet loRS = poDriver.executeQuery(lsSQL);
             
             poJAData = MiscUtil.RS2JSON(loRS);
